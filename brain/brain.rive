@@ -1,0 +1,90 @@
+! version = 2.0
+
+
+> object doesuserexist python
+    import utilities
+    print("Arguments: ", args)
+    exist = utilities.doesUserExist(str(args[0]))
+    if exist:
+        return "true"
+    else:
+        return "false"
+< object
+
+> object registeruser python
+    import utilities
+    success = utilities.registerUser(str(args[0]), str(args[1]))
+    if success:
+        return "true"
+    else:
+        return "false"
+< object
+
+> object authenticateuser python
+    import utilities
+    success = utilities.authenticateUser(str(args[0]), str(args[1]))
+    if success:
+        return "true"
+    else:
+        return "false"
+< object
+
+> object ShowMovieInfo python
+    import utilities
+    original_title, overview, release_date, vote_average, original_language, adult = utilities.ShowMovieInfo(str(args[0]))
+    return( "Movie Title: " + original_title +
+            "\n\nMovie Description: " + overview +
+            "\n\nMovie Release Date: " + release_date +
+            "\n\nMovie Rating: " + vote_average +
+            "\n\nOriginal Language Of The Movie: " + original_language +
+            "\n\nIs it for adults ?: " + adult)
+< object
+
+> begin
+
+  + request
+  * <get authorization> == undefined => <set authorization=true>{topic=new_user}{ok}
+  - {ok}
+
+< begin
+
+> topic new_user
+
+  + *
+  - Hi! I'm <bot name>! Your movie information chatbot.\s
+  ^ I am here to help you find the most important information about any movie you want!\s
+  ^ But before we start...\n
+  ^ What is your name?{topic=asked_name}
+
+< topic
+
+> topic asked_name
+  + *
+  * <call>doesuserexist <formal></call> == false => <set name=<formal>>Nice to meet you, <get name>! I see that you are new, please choose a password{topic=asked_password_registration}
+  - <set name=<formal>>Nice to meet you, <get name>! I see that you have been registered already, please enter your password{topic=asked_password_authentication}
+
+< topic
+
+> topic asked_password_registration
+  + *
+  * <call>registeruser <get name> <star1></call> == true => You're all set!\n Now, What movie you are intersted to know information about?{topic=random}\n
+  - There is a problem registering you, try choosing a password consisting of 8 numbers.
+
+< topic
+
+> topic asked_password_authentication
+  + *
+  * <call>authenticateuser <get name> <star1></call> == true => You're all set!\n Now, What movie you are intersted to know information about?{topic=random}\n
+  - Password incorrect, please enter a new password.
+
+< topic
+
+
+  + *
+  - <call>ShowMovieInfo <star></call>
+ 
+  + thank you | thanks | nice | ok | okay 
+  - Your welcome.
+
+
+
